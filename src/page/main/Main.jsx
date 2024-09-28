@@ -7,7 +7,7 @@ import styled from "styled-components";
 import TodoList from "./TodoList";
 import TodoSetting from "./TodoSetting";
 import Calendar from "./Calendar";
-import Modal from "../../components/Modal"
+import Modal from "../../components/Modal";
 
 const MainPage = styled.div`
   min-height: 100vh;
@@ -44,8 +44,8 @@ const Main = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [history, setHistory] = useState([]);
   const [showComponent, setShowComponent] = useState("");
-  const [openModal,setOpenModal] = useState({"isOpen":false,"emoji":""});
-  
+  const [openModal, setOpenModal] = useState({ isOpen: false, emoji: "" });
+
   const [todoList, setTodoList] = useState([
     { id: "1", emoji: "dog", count: 3, color: "#359BF9" },
     { id: "2", emoji: "eat", count: 5, color: "#35A34D" },
@@ -106,11 +106,12 @@ const Main = () => {
       {showComponent === "Calendar" ? (
         <Calendar />
       ) : showComponent === "Setting" ? (
-        <TodoSetting setOpenModal={setOpenModal}/>
+        <TodoSetting setOpenModal={setOpenModal} />
       ) : null}
 
-
-      {openModal.isOpen&&<Modal modalEmoji={openModal.emoji}/>}
+      {openModal.isOpen && (
+        <Modal openModal={openModal} setOpenModal={setOpenModal} />
+      )}
     </MainPage>
   );
 };

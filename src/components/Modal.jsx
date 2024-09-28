@@ -2,23 +2,42 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { ReactComponent as UpArrow } from "../asset/UpArrow.svg";
 import { ReactComponent as DownArrow } from "../asset/DownArrow.svg";
-import Icons from '../asset/icons/icons';
+import { ReactComponent as Cancel } from "../asset/SqareCancel.svg";
+import Icons from "../asset/icons/icons";
+import axios from "axios";
+
+const ModalBg = styled.div`
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(55, 55, 55, 0.6);
+  padding: 0 40px;
+`;
 
 const ModalPage = styled.div`
-  background-color: #2C2C2C;
-  width: 300px;
+  background-color: #2c2c2c;
   height: 360px;
   box-sizing: border-box;
   border: 10px solid #878787;
   border-radius: 30px;
-  padding: 40px 20px;
-
+  padding: 50px 20px 30px 20px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 
-  position:fixed;
-  top:25%;
+  & > svg {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+  }
 `;
 
 const NameInput = styled.div`
@@ -81,6 +100,7 @@ const DayButton = styled.div`
 `;
 
 const Count = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -147,11 +167,26 @@ const SubmitButton = styled.button`
   font-size: 1rem;
 `;
 
-function Modal({modalEmoji}) {
+function Modal({ openModal, setOpenModal }) {
   const colors = ["#C74343", "#E5E879", "#35A24D", "#359BF9"];
   const days = ["월", "화", "수", "목", "금", "토", "일"];
+  const daysToEnglish = {
+    월: "MONDAY",
+    화: "TUESDAY",
+    수: "WEDNESDAY",
+    목: "THURSDAY",
+    금: "FRIDAY",
+    토: "SATURDAY",
+    일: "SUNDAY",
+  };
+  const colorMap = {
+    "#C74343": "RED",
+    "#E5E879": "YELLOW",
+    "#35A24D": "GREEN",
+    "#359BF9": "BLUE",
+  };
   const [selectedName, setSelectedName] = useState("");
-  const [selectedDay, setSelectedDay] = useState("");
+  const [selectedDay, setSelectedDay] = useState([]);
   const [selectedCount, setSelectedCount] = useState(1);
   const [selectedColor, setselectedColor] = useState("");
   const [submit, setSubmit] = useState("등록하기");
@@ -171,8 +206,10 @@ function Modal({modalEmoji}) {
 
   // 배열에 들어간 요일 string 형식으로 변환.
   const [selectedDays, setSelectedDays] = useState([]);
+
   useEffect(() => {
-    setSelectedDay(selectedDays.join(""));
+    const englishSelectedDays = selectedDays.map((day) => daysToEnglish[day]); // selectedDays를 영어로 변환하여 배열로 유지
+    setSelectedDay(englishSelectedDays); // 영어로 변환된 배열을 selectedDay 상태에 설정
   }, [selectedDays]);
 
   // 횟수 증가, 감소
@@ -190,81 +227,101 @@ function Modal({modalEmoji}) {
   };
 
   // submit 출력
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    const backendColor = colorMap[selectedColor];
     // 객체로 데이터 묶음
     const data = {
-      emoji: "Pill", // SVG 이름
+      emojiType: openModal.emoji, // SVG 이름
       name: selectedName,
-      day: selectedDay,
-      count: selectedCount,
-      color: selectedColor,
+      days: selectedDay,
+      goalCount: selectedCount,
+      color: backendColor,
     };
+
+    try {
+      const response = await axios.post(
+        "http://15.164.106.252:8080/api/emoji/add",
+        data
+      );
+      console.log("서버 응답: ", response.data);
+    } catch (error) {
+      console.error("요청 오류: ", error);
+    }
 
     console.log("Submitted Data: ", JSON.stringify(data, null, 2)); // 콘솔에 출력
   };
 
-  const EmojiComponent = Icons[modalEmoji];
-  
+  const EmojiComponent = Icons[openModal.emoji];
+
+  const closeModal = () => {
+    setOpenModal({ isOpen: false });
+  };
+
   return (
-    <ModalPage>
-      <NameInput>
-        {EmojiComponent && <EmojiComponent fill={selectedColor?selectedColor:"#D9D9D9"}/>}
-        <input
-          type="text"
-          value={selectedName}
-          placeholder="이름"
-          onChange={(e) => setSelectedName(e.target.value)}
-        />
-      </NameInput>
-      <DayButton>
-        {days.map((day) => (
-          <button
-            key={day}
-            onClick={() => handleDayButtonClick(day)}
-            className={selectedDays.includes(day) ? "selected" : ""}
-          >
-            {day}
-          </button>
-        ))}
-      </DayButton>
+    <ModalBg onClick={closeModal}>
+      <ModalPage onClick={(e) => e.stopPropagation()}>
+        <Cancel width="27px" height="22px" onClick={closeModal} />
+        <NameInput>
+          {EmojiComponent && (
+            <EmojiComponent fill={selectedColor ? selectedColor : "#D9D9D9"} />
+          )}
+          <input
+            type="text"
+            value={selectedName}
+            placeholder="이름"
+            onChange={(e) => setSelectedName(e.target.value)}
+          />
+        </NameInput>
+        <DayButton>
+          {days.map((day) => (
+            <button
+              key={day}
+              onClick={() => handleDayButtonClick(day)}
+              className={selectedDays.includes(day) ? "selected" : ""}
+            >
+              {day}
+            </button>
+          ))}
+        </DayButton>
 
-      <Count>
-        <div>횟수</div>
-        <CountButton>
-          <UpArrow width="6px" height="3px" onClick={increaseCount}></UpArrow>
-          <div>{selectedCount}</div>
-          <DownArrow
-            width="6px"
-            height="3px"
-            onClick={decreaseCount}
-          ></DownArrow>
-        </CountButton>
-      </Count>
+        <Count>
+          <div>횟수</div>
+          <CountButton>
+            <UpArrow width="6px" height="3px" onClick={increaseCount}></UpArrow>
+            <div>{selectedCount}</div>
+            <DownArrow
+              width="6px"
+              height="3px"
+              onClick={decreaseCount}
+            ></DownArrow>
+          </CountButton>
+        </Count>
 
-      <Color>
-        <div>색깔</div>
-        {colors.map((color, idx) => (
-          <label key={idx}>
-            <HiddenInput
-              type="radio"
-              name="colors"
-              value={color}
-              checked={selectedColor === color}
-              onChange={handleColorChange}
-            ></HiddenInput>
-            <ColorDiv
-              color={color}
-              selected={selectedColor === color}
-              onClick={() => setselectedColor(color)}
-            ></ColorDiv>
-          </label>
-        ))}
-      </Color>
+        <Color>
+          <div>색깔</div>
+          {colors.map((color, idx) => (
+            <label key={idx}>
+              <HiddenInput
+                type="radio"
+                name="colors"
+                value={color}
+                checked={selectedColor === color}
+                onChange={handleColorChange}
+              ></HiddenInput>
+              <ColorDiv
+                color={color}
+                selected={selectedColor === color}
+                onClick={() => setselectedColor(color)}
+              ></ColorDiv>
+            </label>
+          ))}
+        </Color>
 
-      <SubmitButton type="button" onClick={handleSubmit}>
-        {submit}
-      </SubmitButton>
-    </ModalPage>
+        <SubmitButton type="button" onClick={handleSubmit}>
+          {submit}
+        </SubmitButton>
+      </ModalPage>
+    </ModalBg>
   );
 }
 
