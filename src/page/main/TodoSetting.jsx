@@ -22,7 +22,7 @@ const Icon = styled.div`
 `;
 
 const TodoSetting = ({setOpenModal}) => {
-    const iconList = ['dog','eat','exercise','git', 'pill', 'read', 'walk', 'water'];
+    const iconList = ['DOG','EAT','EXERCISE','GIT', 'PILL', 'READ', 'WALK', 'WATER'];
     return (
         <TodoSettingBox>
             <h3>필요한 이모지를 클릭하세요</h3>

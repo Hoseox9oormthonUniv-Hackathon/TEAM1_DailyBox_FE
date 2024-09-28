@@ -23,50 +23,69 @@ const Icon = styled.div`
 `;
 
 const Count = styled.span`
-    color:${props=>props.count===0?'#393939':props.color};
-    font-weight:700;
+    color: ${props => (props.count === 0 ? '#393939' : props.color)};
+    font-weight: 700;
 `;
 
-const TodoList = ({setHistory,history,setTodoList,todoList}) => {
+const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress }) => {
     const longPressTimeout = useRef(null);
-    console.log(longPressTimeout);
 
     const discountClick = (id) => {
-        const item = todoList.find((item) => item.id === id);
-        if (item.count > 0){
-            setTodoList((prevList) =>
-                prevList.map((item) =>
-                    item.id === id && item.count > 0
-                        ? { ...item, count: item.count - 1 }
-                        : item
-                )
-            );
-    
-            setHistory([...history,id]);
-        }
+            const item = todoList.find((item) => item.id === id);
+            if (item.count > 0) {
+                setTodoList((prevList) =>
+                    prevList.map((item) =>
+                        item.id === id && item.count > 0
+                            ? { ...item, count: item.count - 1 }
+                            : item
+                    )
+                );
+                setHistory([...history, id]);
+            }
     };
 
-    const handleLongPress = (id) => {
-        console.log(`${id}가 꾹`);
+    const handleLongPress = (name) => {
+        setLongPress({"isPress":true,name})
     };
 
-    const handleMouseDown = (id) => {
-        longPressTimeout.current = setTimeout(() => handleLongPress(id), 200);
+    const handleMouseDown = (name) => {
+        longPressTimeout.current = setTimeout(() => handleLongPress(name), 500);
     };
 
     const handleMouseUp = () => {
         clearTimeout(longPressTimeout.current);
+        setLongPress({"isPress":false,name:""});
+    };
+
+    const handleTouchStart = (name) => {
+        longPressTimeout.current = setTimeout(() => handleLongPress(name), 500);
+    };
+
+    const handleTouchEnd = () => {
+        clearTimeout(longPressTimeout.current);
+        setLongPress({"isPress":false,name:""});
+    };
+
+    const handleDragStart = (event, id) => {
+        event.dataTransfer.setData("text", id);
     };
 
     return (
         <TodoListBox>
-            {todoList.map(({ id, emoji, count, color }) => {
+            {todoList.map(({ id, emoji, count, color, name }) => {
                 const EmojiComponent = Icons[emoji];
                 return (
-                    <Icon key={id} onClick={() => discountClick(id)}
-                        onMouseDown={() => handleMouseDown(id)}
+                    <Icon
+                        id={id}
+                        key={id}
+                        onClick={() => discountClick(id)}
+                        onMouseDown={() => handleMouseDown(name)}
                         onMouseUp={handleMouseUp}
                         onMouseLeave={handleMouseUp}
+                        onTouchStart={() => handleTouchStart(name)}
+                        onTouchEnd={handleTouchEnd}
+                        draggable
+                        onDragStart={(event) => handleDragStart(event, id)}
                     >
                         {EmojiComponent && <EmojiComponent fill={count === 0 ? '#393939' : color} />}
                         <Count color={color} count={count}>{count}</Count>

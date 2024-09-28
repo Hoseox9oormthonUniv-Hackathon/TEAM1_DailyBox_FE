@@ -8,14 +8,14 @@ import { ReactComponent as Walk } from '../../asset/icons/Walk.svg';
 import { ReactComponent as Water } from '../../asset/icons/Water.svg';
 
 const Icons = {
-    dog: Dog,
-    eat: Eat,
-    exercise: Exercise,
-    git: Git,
-    pill: Pill,
-    read: Read,
-    walk: Walk,
-    water: Water,
+    DOG: Dog,
+    EAT: Eat,
+    EXERCISE: Exercise,
+    GIT: Git,
+    PILL: Pill,
+    READ: Read,
+    WALK: Walk,
+    WATER: Water,
 };
 
 export default Icons;
