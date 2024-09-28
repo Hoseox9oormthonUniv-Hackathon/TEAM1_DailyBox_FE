@@ -16,8 +16,9 @@ const Icon = styled.div`
     text-align: center;
     transition: transform 0.2s ease-in-out;
 
-    &:active {
-        transform: scale(0.8);
+    &:active,&:hover {
+    transform: scale(0.9);
+    cursor: pointer;
     }
 `;
 

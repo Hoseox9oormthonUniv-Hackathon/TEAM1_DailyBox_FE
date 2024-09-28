@@ -18,15 +18,17 @@ const Icon = styled.div`
   text-align: center;
   transition: transform 0.2s ease-in-out;
 
-  &:active {
+  &:active,&:hover {
     transform: scale(0.9);
+    cursor: pointer;
   }
 `;
 
 const Count = styled.span`
-  color: ${(props) => (props.count === 0 ? '#393939' : props.color)};
+  color: ${(props) => (props.count ? props.color : '#393939')};
   font-weight: 700;
 `;
+
 
 const colorMap = {
   RED: '#C74343',
@@ -45,7 +47,7 @@ const dayMap = {
     일요일: "SUNDAY",
   };
 
-const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, currentDay }) => {
+const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, currentDay, showComponent }) => {
   const longPressTimeout = useRef(null);
 
   const putDiscount = async (id) => {
@@ -59,7 +61,7 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
 
   const discountClick = (id) => {
     const item = todoList.find((item) => item.id === id);
-    if (item.count > 0) {
+    if (item.count > 0 && showComponent!=="Setting") {
       setTodoList((prevList) =>
         prevList.map((item) =>
           item.id === id && item.count > 0 ? { ...item, count: item.count - 1 } : item
@@ -100,7 +102,7 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
     <TodoListBox>
       {todoList
         ?.filter((item) => item.day === dayMap[currentDay])
-        .map(({ id, emojiType, count, color, name }) => {
+        .map(({ id, emojiType, count, color, name, goalCount }) => {
           const EmojiComponent = Icons[emojiType];
           return (
             <Icon
@@ -115,10 +117,21 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
               draggable
               onDragStart={(event) => handleDragStart(event, id)}
             >
-              {EmojiComponent && <EmojiComponent fill={count === 0 ? '#393939' : colorMap[color]} />}
-              <Count color={colorMap[color]} count={count}>
-                {count}
-              </Count>
+              {showComponent === "Setting" ?
+                EmojiComponent && <EmojiComponent fill={colorMap[color]} />
+              :
+                EmojiComponent && <EmojiComponent fill={count === 0 ? '#393939' : colorMap[color]} />
+              }
+              {showComponent === "Setting" ? (
+                <Count color={colorMap[color]} count={goalCount}>
+                  {goalCount}
+                </Count>
+              ) : (
+                <Count color={colorMap[color]} count={count}>
+                  {count}
+                </Count>
+              )}
+              
             </Icon>
           );
         })}

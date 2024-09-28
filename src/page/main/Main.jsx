@@ -19,6 +19,7 @@ const MainPage = styled.div`
   background-color: #2c2c2c;
   padding: 80px 40px;
   text-align: center;
+  position:relative;
 `;
 
 const HeaderSection = styled.header`
@@ -49,7 +50,7 @@ const Main = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [history, setHistory] = useState([]);
   const [showComponent, setShowComponent] = useState("");
-  const [openModal,setOpenModal] = useState({"isOpen":false,"emoji":""});
+  const [openModal,setOpenModal] = useState({"isOpen":false,"emoji":"",id:""});
   const [longPress,setLongPress] = useState({"isPress":false,"name":""});
 
   const [todoList, setTodoList] = useState([
@@ -145,7 +146,17 @@ const Main = () => {
         deleteTodo(id);
       }
     };
-  
+
+    const handleDropUpdate = (event) => {
+      event.preventDefault();
+      const id = Number(event.dataTransfer.getData("text"));
+      const item = todoList.find((item) => item.id === id);
+      if (id && event.currentTarget.classList.contains("update-button")) {
+        setLongPress({"isPress":false,name:""});
+        setOpenModal({ isOpen: true, emoji:item.emojiType, id:item.id});
+      }
+    };
+    console.log(openModal)
     const handleDragOver = (event) => {
       event.preventDefault();
     };
@@ -176,6 +187,7 @@ const Main = () => {
         setHistory={setHistory}
         setLongPress={setLongPress}
         currentDay={getKoreanDay()}
+        showComponent={showComponent}
       />
       <ButtonSection>
         <Button onClick={undoClick}>
@@ -198,6 +210,9 @@ const Main = () => {
           )}
         </Button>
         <SettingButton
+        className="update-button"
+        onDrop={handleDropUpdate} 
+        onDragOver={handleDragOver} 
           onClick={() => {
             toggleComponent("Setting");
           }}

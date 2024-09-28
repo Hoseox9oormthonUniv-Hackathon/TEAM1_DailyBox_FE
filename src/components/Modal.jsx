@@ -9,7 +9,7 @@ import axios from "axios";
 const ModalBg = styled.div`
   width: 100%;
   height: 100%;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   display: flex;
