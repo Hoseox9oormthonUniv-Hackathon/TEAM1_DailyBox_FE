@@ -248,7 +248,7 @@ function Modal({ openModal, setOpenModal }) {
       console.error("요청 오류: ", error);
     }
 
-    console.log("Submitted Data: ", JSON.stringify(data, null, 2)); // 콘솔에 출력
+    closeModal();
   };
 
   const EmojiComponent = Icons[openModal.emoji];
