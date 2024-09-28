@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { ReactComponent as UpArrow } from "../asset/UpArrow.svg";
 import { ReactComponent as DownArrow } from "../asset/DownArrow.svg";
+import Icons from '../asset/icons/icons';
 
 const ModalPage = styled.div`
+  background-color: #2C2C2C;
   width: 300px;
   height: 360px;
   box-sizing: border-box;
@@ -14,6 +16,9 @@ const ModalPage = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  position:fixed;
+  top:25%;
 `;
 
 const NameInput = styled.div`
@@ -142,7 +147,7 @@ const SubmitButton = styled.button`
   font-size: 1rem;
 `;
 
-function Modal() {
+function Modal({modalEmoji}) {
   const colors = ["#C74343", "#E5E879", "#35A24D", "#359BF9"];
   const days = ["월", "화", "수", "목", "금", "토", "일"];
   const [selectedName, setSelectedName] = useState("");
@@ -198,9 +203,12 @@ function Modal() {
     console.log("Submitted Data: ", JSON.stringify(data, null, 2)); // 콘솔에 출력
   };
 
+  const EmojiComponent = Icons[modalEmoji];
+  
   return (
     <ModalPage>
       <NameInput>
+        {EmojiComponent && <EmojiComponent fill={selectedColor?selectedColor:"#D9D9D9"}/>}
         <input
           type="text"
           value={selectedName}

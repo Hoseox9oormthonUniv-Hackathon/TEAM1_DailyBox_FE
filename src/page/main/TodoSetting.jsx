@@ -17,19 +17,19 @@ const Icon = styled.div`
     transition: transform 0.2s ease-in-out;
 
     &:active {
-        transform: scale(0.9);
+        transform: scale(0.8);
     }
 `;
 
-const TodoAdd = () => {
+const TodoSetting = ({setOpenModal}) => {
     const iconList = ['dog','eat','exercise','git', 'pill', 'read', 'walk', 'water'];
     return (
         <TodoSettingBox>
             <h3>필요한 이모지를 클릭하세요</h3>
-            {iconList.map(( emoji ) => {
+            {iconList.map(( emoji,idx ) => {
                 const EmojiComponent = Icons[emoji];
                 return (
-                    <Icon>
+                    <Icon key={idx} onClick={()=>{setOpenModal({ isOpen: true, emoji })}}>
                         {EmojiComponent && <EmojiComponent fill='#878787'/>}
                     </Icon>
                 );
@@ -38,4 +38,4 @@ const TodoAdd = () => {
     );
 };
 
-export default TodoAdd;
+export default TodoSetting;
