@@ -23,7 +23,7 @@ const ModalPage = styled.div`
   background-color: #2c2c2c;
   height: 360px;
   box-sizing: border-box;
-  border: 10px solid #878787;
+  border: 8px solid #878787;
   border-radius: 30px;
   padding: 50px 20px 30px 20px;
   width: 100%;
