@@ -38,6 +38,14 @@ const ModalPage = styled.div`
     right: 1rem;
     cursor: pointer;
   }
+
+  & > p {
+    position: absolute;
+    bottom: 12px;
+    color: red;
+    display: ${(props) => (props.isCorrect ? "none" : "block")};
+    font-size: 12px;
+  }
 `;
 
 const NameInput = styled.div`
@@ -121,10 +129,10 @@ const CountButton = styled.div`
 
   & > div {
     background-color: #d9d9d9;
-    padding-bottom: 3px;
+    padding-bottom: 2px;
     width: 100%;
     color: #2c2c2c;
-    font-size: 1rem;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -133,6 +141,8 @@ const CountButton = styled.div`
 
   & > svg {
     cursor: pointer;
+    width: 12px;
+    height: 6px;
   }
 `;
 
@@ -178,18 +188,60 @@ function Modal({ openModal, setOpenModal }) {
     금: "FRIDAY",
     토: "SATURDAY",
     일: "SUNDAY",
+    MONDAY: "월",
+    TUESDAY: "화",
+    WEDNESDAY: "수",
+    THURSDAY: "목",
+    FRIDAY: "금",
+    SATURDAY: "토",
+    SUNDAY: "일",
   };
   const colorMap = {
     "#C74343": "RED",
     "#E5E879": "YELLOW",
     "#35A24D": "GREEN",
     "#359BF9": "BLUE",
+    RED: "#C74343",
+    YELLOW: "#E5E879",
+    GREEN: "#35A24D",
+    BLUE: "#359BF9",
   };
   const [selectedName, setSelectedName] = useState("");
   const [selectedDay, setSelectedDay] = useState([]);
   const [selectedCount, setSelectedCount] = useState(1);
   const [selectedColor, setselectedColor] = useState("");
   const [submit, setSubmit] = useState("등록하기");
+  const [isCorrect, setIsCorrect] = useState(true);
+
+  const isEditMode = openModal.id !== undefined;
+
+  useEffect(() => {
+    // 수정 모드일 때 서버로부터 데이터를 가져옴
+    if (openModal.id) {
+      fetchEmojiData(openModal.id);
+    }
+  }, [openModal.id]);
+
+  const fetchEmojiData = async (id) => {
+    try {
+      // 아이디로 이모지 데이터를 가져옴
+      const response = await axios.get(
+        `http://15.164.106.252:8080/api/emoji/week-emoji`
+      );
+      const item = response.data.data.find((item) => item.id === id);
+      console.log(item);
+
+      // 가져온 데이터를 상태에 설정
+      setselectedColor(colorMap[item.color]);
+      setSelectedCount(item.goalCount);
+      setSelectedName(item.name);
+      setSelectedDay([...item.day]);
+      const koreanDays = item.day.map((day) => daysToEnglish[day]);
+      console.log(koreanDays);
+    } catch (error) {
+      console.error("데이터를 가져오는 중 오류 발생: ", error);
+    }
+  };
 
   // day 버튼 핸들러
   const handleDayButtonClick = (day) => {
@@ -228,6 +280,11 @@ function Modal({ openModal, setOpenModal }) {
 
   // submit 출력
   const handleSubmit = async () => {
+    if (selectedDay.length === 0 || !selectedName || !selectedColor) {
+      setIsCorrect(false);
+      return; // 요청을 보내지 않고 함수 종료
+    }
+
     const backendColor = colorMap[selectedColor];
     // 객체로 데이터 묶음
     const data = {
@@ -254,12 +311,13 @@ function Modal({ openModal, setOpenModal }) {
   const EmojiComponent = Icons[openModal.emoji];
 
   const closeModal = () => {
+    setIsCorrect(true);
     setOpenModal({ isOpen: false });
   };
 
   return (
     <ModalBg onClick={closeModal}>
-      <ModalPage onClick={(e) => e.stopPropagation()}>
+      <ModalPage onClick={(e) => e.stopPropagation()} isCorrect={isCorrect}>
         <Cancel width="27px" height="22px" onClick={closeModal} />
         <NameInput>
           {EmojiComponent && (
@@ -320,6 +378,7 @@ function Modal({ openModal, setOpenModal }) {
         <SubmitButton type="button" onClick={handleSubmit}>
           {submit}
         </SubmitButton>
+        <p isCorrect>* 빈 칸을 모두 작성해주세요.</p>
       </ModalPage>
     </ModalBg>
   );
