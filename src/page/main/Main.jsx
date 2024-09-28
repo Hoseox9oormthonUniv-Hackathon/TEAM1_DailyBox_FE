@@ -23,10 +23,15 @@ const MainPage = styled.div`
 `;
 
 const HeaderSection = styled.header`
+  margin-bottom:16px;
   display:flex;
   justify-content: center;
   align-items: center;
   background-color: #2c2c2c;
+
+  h2{
+    margin:0 40px;
+  }
 `;
 
 const ButtonSection = styled.section`
@@ -156,15 +161,16 @@ const Main = () => {
         setOpenModal({ isOpen: true, emoji:item.emojiType, id:item.id});
       }
     };
-    console.log(openModal)
+
     const handleDragOver = (event) => {
       event.preventDefault();
     };
 
   return (
     <MainPage>
-      {showComponent === "Setting"?
       <HeaderSection>
+      {showComponent === "Setting"?
+      <>
         <button style={{backgroundColor:"#2c2c2c"}}
               onClick={()=>{ChangeDay("<")}}
         >
@@ -176,10 +182,11 @@ const Main = () => {
         >
           <RightArrow/>
         </button>
-      </HeaderSection>
+        </>
       :
-        <h2>{longPress.isPress?longPress.name:formatDate}</h2>
-      }
+      <h2>{longPress.isPress?longPress.name:formatDate}</h2>
+    }
+    </HeaderSection>
       <TodoList
         todoList={todoList}
         setTodoList={setTodoList}

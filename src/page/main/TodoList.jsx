@@ -6,17 +6,28 @@ import axios from 'axios';
 const TodoListBox = styled.div`
   height: 300px;
   border: 10px solid #393939;
+  padding:40px 0;
   border-radius: 30px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-`;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar{
+            display: none;
+        }
+  `;
 
 const Icon = styled.div`
-  width: 30%;
+  width: 33.3%;
+  height:30%;
   text-align: center;
   transition: transform 0.2s ease-in-out;
+  margin-bottom:25px;
+
+  svg{
+    width: 50%;
+    height: 70%;
+  }
 
   &:active,&:hover {
     transform: scale(0.9);

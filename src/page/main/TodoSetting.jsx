@@ -2,13 +2,18 @@ import styled from 'styled-components';
 import Icons from '../../asset/icons/icons';
 
 const TodoSettingBox = styled.div`
-    height: 300px;
     border: 10px solid #393939;
     border-radius: 30px;
+    padding:30px 10px;
+`;
+
+const TodoSettingContent = styled.div`
+    margin-top:25px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+    row-gap:20px;
 `;
 
 const Icon = styled.div`
@@ -27,6 +32,7 @@ const TodoSetting = ({setOpenModal}) => {
     return (
         <TodoSettingBox>
             <h3>필요한 이모지를 클릭하세요</h3>
+            <TodoSettingContent>
             {iconList.map(( emoji,idx ) => {
                 const EmojiComponent = Icons[emoji];
                 return (
@@ -35,6 +41,7 @@ const TodoSetting = ({setOpenModal}) => {
                     </Icon>
                 );
             })}
+            </TodoSettingContent>
         </TodoSettingBox>
     );
 };
