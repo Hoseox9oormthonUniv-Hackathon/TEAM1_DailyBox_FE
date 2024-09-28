@@ -82,7 +82,7 @@ const Main = () => {
     };
     getTodoList();
   }, [openModal]);
-
+  console.log(todoList)
   const putUndo = async (id) => {
     try {
       const res = await axios.put(
@@ -256,7 +256,7 @@ const Main = () => {
       ) : null}
 
       {openModal.isOpen && (
-        <Modal openModal={openModal} setOpenModal={setOpenModal} />
+        <Modal openModal={openModal} setOpenModal={setOpenModal} todoList={todoList} />
       )}
     </MainPage>
   );

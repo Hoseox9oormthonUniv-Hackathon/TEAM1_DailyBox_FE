@@ -177,7 +177,7 @@ const SubmitButton = styled.button`
   font-size: 1rem;
 `;
 
-function Modal({ openModal, setOpenModal }) {
+function Modal({ openModal, setOpenModal, todoList }) {
   const colors = ["#C74343", "#E5E879", "#35A24D", "#359BF9"];
   const days = ["월", "화", "수", "목", "금", "토", "일"];
   const daysToEnglish = {
@@ -224,23 +224,13 @@ function Modal({ openModal, setOpenModal }) {
     }
   }, [openModal.id]);
 
-  const fetchEmojiData = async (id) => {
-    try {
-      // 아이디로 이모지 데이터를 가져옴
-      const response = await axios.get(
-        `http://15.164.106.252:8080/api/emoji/week-emoji`
-      );
-      const item = response.data.data.find((item) => item.id === id);
-      console.log(item);
-
-      // 가져온 데이터를 상태에 설정
+  const fetchEmojiData = (id) => {
+    const item = todoList.find((item) => item.id === id);
+      //가져온 데이터를 상태에 설정
       setselectedColor(colorMap[item.color]);
       setSelectedCount(item.goalCount);
       setSelectedName(item.name);
-      setSelectedDays(item.day.map((day) => daysToEnglish[day])); // 영어 요일을 한글로 변환하여 설정
-    } catch (error) {
-      console.error("데이터를 가져오는 중 오류 발생: ", error);
-    }
+      setSelectedDays([`${daysToEnglish[item.day]}`]);// 영어 요일을 한글로 변환하여 설정
   };
 
   // day 버튼 핸들러
@@ -291,7 +281,8 @@ function Modal({ openModal, setOpenModal }) {
       goalCount: selectedCount,
       color: backendColor,
     };
-    console.log(data);
+
+    const engDay = selectedDay[0];
 
     try {
       let response;
@@ -299,7 +290,13 @@ function Modal({ openModal, setOpenModal }) {
         // 수정 요청 (PUT)
         response = await axios.put(
           `http://15.164.106.252:8080/api/emoji/update/${openModal.id}`,
-          data
+          {
+            emojiType: openModal.emoji, // SVG 이름
+            name: selectedName,
+            day: engDay,
+            goalCount: selectedCount,
+            color: backendColor,
+          }
         );
       } else {
         // 생성 요청 (POST)
