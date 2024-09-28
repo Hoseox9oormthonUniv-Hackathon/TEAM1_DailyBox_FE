@@ -1,82 +1,95 @@
-import styled from 'styled-components';
-import Icons from '../../asset/icons/icons';
-import { useRef } from 'react';
-import axios from 'axios';
+import styled from "styled-components";
+import Icons from "../../asset/icons/icons";
+import { useRef } from "react";
+import axios from "axios";
 
 const TodoListBox = styled.div`
   height: 300px;
   border: 10px solid #393939;
-  padding:40px 0;
+  padding: 30px 20px;
   border-radius: 30px;
   display: flex;
   flex-wrap: wrap;
   overflow-y: scroll;
+  align-content: flex-start;
 
-  &::-webkit-scrollbar{
-            display: none;
-        }
-  `;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
 
 const Icon = styled.div`
   width: 33.3%;
-  height:30%;
+  height: 30%;
   text-align: center;
   transition: transform 0.2s ease-in-out;
-  margin-bottom:25px;
+  margin-bottom: 20px;
 
-  svg{
+  svg {
     width: 50%;
     height: 70%;
   }
 
-  &:active,&:hover {
+  &:active,
+  &:hover {
     transform: scale(0.9);
     cursor: pointer;
   }
 `;
 
 const Count = styled.span`
-  color: ${(props) => (props.count ? props.color : '#393939')};
+  color: ${(props) => (props.count ? props.color : "#393939")};
   font-weight: 700;
 `;
 
-
 const colorMap = {
-  RED: '#C74343',
-  YELLOW: '#E5E879',
-  GREEN: '#35A24D',
-  BLUE: '#359BF9',
+  RED: "#C74343",
+  YELLOW: "#E5E879",
+  GREEN: "#35A24D",
+  BLUE: "#359BF9",
 };
 
 const dayMap = {
-    월요일: "MONDAY",
-    화요일: "TUESDAY",
-    수요일: "WEDNESDAY",
-    목요일: "THURSDAY",
-    금요일: "FRIDAY",
-    토요일: "SATURDAY",
-    일요일: "SUNDAY",
-  };
+  월요일: "MONDAY",
+  화요일: "TUESDAY",
+  수요일: "WEDNESDAY",
+  목요일: "THURSDAY",
+  금요일: "FRIDAY",
+  토요일: "SATURDAY",
+  일요일: "SUNDAY",
+};
 
-const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, currentDay, showComponent }) => {
+const TodoList = ({
+  setHistory,
+  history,
+  setTodoList,
+  todoList,
+  setLongPress,
+  currentDay,
+  showComponent,
+}) => {
   const longPressTimeout = useRef(null);
 
   const putDiscount = async (id) => {
     try {
-        const res = await axios.put(`http://15.164.106.252:8080/api/emoji/down-count/${id}`);
-        console.log(res.data);
+      const res = await axios.put(
+        `http://15.164.106.252:8080/api/emoji/down-count/${id}`
+      );
+      console.log(res.data);
     } catch (err) {
-        console.log(err);
+      console.log(err);
     }
-  }
+  };
 
   const discountClick = (id) => {
     const item = todoList.find((item) => item.id === id);
-    if (item.count > 0 && showComponent!=="Setting") {
+    if (item.count > 0 && showComponent !== "Setting") {
       setTodoList((prevList) =>
         prevList.map((item) =>
-          item.id === id && item.count > 0 ? { ...item, count: item.count - 1 } : item
-      )
+          item.id === id && item.count > 0
+            ? { ...item, count: item.count - 1 }
+            : item
+        )
       );
       putDiscount(id);
       setHistory([...history, id]);
@@ -93,7 +106,7 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
 
   const handleMouseUp = () => {
     clearTimeout(longPressTimeout.current);
-    setLongPress({ isPress: false, name: '' });
+    setLongPress({ isPress: false, name: "" });
   };
 
   const handleTouchStart = (name) => {
@@ -102,13 +115,13 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
 
   const handleTouchEnd = () => {
     clearTimeout(longPressTimeout.current);
-    setLongPress({ isPress: false, name: '' });
+    setLongPress({ isPress: false, name: "" });
   };
 
   const handleDragStart = (event, id) => {
-    event.dataTransfer.setData('text', id);
+    event.dataTransfer.setData("text", id);
   };
-    
+
   return (
     <TodoListBox>
       {todoList
@@ -128,11 +141,13 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
               draggable
               onDragStart={(event) => handleDragStart(event, id)}
             >
-              {showComponent === "Setting" ?
-                EmojiComponent && <EmojiComponent fill={colorMap[color]} />
-              :
-                EmojiComponent && <EmojiComponent fill={count === 0 ? '#393939' : colorMap[color]} />
-              }
+              {showComponent === "Setting"
+                ? EmojiComponent && <EmojiComponent fill={colorMap[color]} />
+                : EmojiComponent && (
+                    <EmojiComponent
+                      fill={count === 0 ? "#393939" : colorMap[color]}
+                    />
+                  )}
               {showComponent === "Setting" ? (
                 <Count color={colorMap[color]} count={goalCount}>
                   {goalCount}
@@ -142,7 +157,6 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, cu
                   {count}
                 </Count>
               )}
-              
             </Icon>
           );
         })}

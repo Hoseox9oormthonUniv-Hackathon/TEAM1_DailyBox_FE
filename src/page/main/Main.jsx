@@ -17,7 +17,7 @@ import axios from "axios";
 const MainPage = styled.div`
   min-height: 100vh;
   background-color: #2c2c2c;
-  padding: 80px 40px;
+  padding: 80px 55px;
   text-align: center;
   position: relative;
 `;
@@ -26,11 +26,13 @@ const HeaderSection = styled.header`
   margin-bottom: 16px;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background-color: #2c2c2c;
 
   h2 {
     margin: 0 40px;
+    font-weight: 900;
+    font-size: 20px;
   }
 `;
 
@@ -43,7 +45,7 @@ const ButtonSection = styled.section`
 const Button = styled.button`
   background-color: #393939;
   border-radius: 15px;
-  padding: 13px 24px;
+  padding: 10px 24px;
   width: 25%;
 `;
 
@@ -220,7 +222,11 @@ const Main = () => {
       />
       <ButtonSection>
         <Button onClick={undoClick}>
-          {showComponent === "Setting" ? <CancelSvg2 /> : <UndoSvg />}
+          {showComponent === "Setting" ? (
+            <CancelSvg2 width="24px" height="24px" />
+          ) : (
+            <UndoSvg width="26px" height="23px" />
+          )}
         </Button>
         <Button
           className={showComponent === "Setting" ? "trash-button" : ""}
@@ -231,11 +237,11 @@ const Main = () => {
           }}
         >
           {showComponent === "Calendar" ? (
-            <CancelSvg />
+            <CancelSvg width="24px" height="24px" />
           ) : showComponent === "Setting" ? (
-            <TrashlSvg />
+            <TrashlSvg width="24px" height="24px" />
           ) : (
-            <CalendarSvg />
+            <CalendarSvg width="24px" height="24px" />
           )}
         </Button>
         <SettingButton
@@ -246,7 +252,7 @@ const Main = () => {
             toggleComponent("Setting");
           }}
         >
-          <SettingSvg />
+          <SettingSvg width="26" height="26" />
         </SettingButton>
       </ButtonSection>
       {showComponent === "Calendar" ? (

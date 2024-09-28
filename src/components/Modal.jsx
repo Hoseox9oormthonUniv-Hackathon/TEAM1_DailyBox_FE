@@ -23,7 +23,7 @@ const ModalPage = styled.div`
   background-color: #2c2c2c;
   height: 360px;
   box-sizing: border-box;
-  border: 10px solid #878787;
+  border: 8px solid #878787;
   border-radius: 30px;
   padding: 50px 20px 30px 20px;
   width: 100%;
@@ -237,7 +237,7 @@ function Modal({ openModal, setOpenModal }) {
       setselectedColor(colorMap[item.color]);
       setSelectedCount(item.goalCount);
       setSelectedName(item.name);
-      setSelectedDays(item.day.map((day) => daysToEnglish[day])); // 영어 요일을 한글로 변환하여 설정
+      setSelectedDays([`${daysToEnglish[item.day]}`]); // 영어 요일을 한글로 변환하여 설정
     } catch (error) {
       console.error("데이터를 가져오는 중 오류 발생: ", error);
     }
