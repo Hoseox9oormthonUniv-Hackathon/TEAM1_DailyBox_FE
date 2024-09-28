@@ -3,7 +3,10 @@ import { ReactComponent as UndoSvg } from "../../asset/Undo.svg";
 import { ReactComponent as CalendarSvg } from "../../asset/Calendar.svg";
 import { ReactComponent as SettingSvg } from "../../asset/Setting.svg";
 import { ReactComponent as CancelSvg } from "../../asset/Cancel.svg";
+import { ReactComponent as CancelSvg2 } from "../../asset/Cancel2.svg";
 import { ReactComponent as TrashlSvg } from "../../asset/Trash.svg";
+import { ReactComponent as LeftArrow } from "../../asset/LeftArrow.svg";
+import { ReactComponent as RightArrow } from "../../asset/RightArrow.svg";
 import styled from "styled-components";
 import TodoList from "./TodoList";
 import TodoSetting from "./TodoSetting";
@@ -15,6 +18,13 @@ const MainPage = styled.div`
   background-color: #2c2c2c;
   padding: 80px 40px;
   text-align: center;
+`;
+
+const HeaderSection = styled.header`
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #2c2c2c;
 `;
 
 const ButtonSection = styled.section`
@@ -35,7 +45,6 @@ const SettingButton = styled(Button)`
 `;
 
 const Main = () => {
-  const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
   const [currentDate, setCurrentDate] = useState(new Date());
   const [history, setHistory] = useState([]);
   const [showComponent, setShowComponent] = useState("");
@@ -43,10 +52,10 @@ const Main = () => {
   const [longPress,setLongPress] = useState({"isPress":false,"name":""});
 
   const [todoList, setTodoList] = useState([
-    { id: "1", emoji: "DOG", count: 3, color: "#359BF9",name:"1번입니다" },
-    { id: "2", emoji: "EAT", count: 5, color: "#35A34D",name:"2번입니다" },
-    { id: "3", emoji: "EXERCISE", count: 2, color: "#C74343",name:"3번입니다" },
-    { id: "4", emoji: "GIT", count: 4, color: "#E5E879",name:"4번입니다" },
+    { id: "1", emojiType: "DOG", count: 3,goalCount:5, color: "#359BF9",name:"1번입니다",day: "MONDAY" },
+    { id: "2", emojiType: "EAT", count: 5,goalCount:5, color: "#35A34D",name:"2번입니다",day: "MONDAY" },
+    { id: "3", emojiType: "EXERCISE", count: 2,goalCount:5, color: "#C74343",name:"3번입니다",day: "MONDAY" },
+    { id: "4", emojiType: "GIT", count: 4,goalCount:5, color: "#E5E879",name:"4번입니다",day: "MONDAY" },
   ]);
 
   const formatDate = new Intl.DateTimeFormat("ko-KR", {
@@ -55,8 +64,27 @@ const Main = () => {
     weekday: "long",
   }).format(currentDate);
 
+  const getKoreanDay = () => {
+    const daysInKorean = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+    return daysInKorean[currentDate.getDay()];
+  };
+
+  const ChangeDay = (direction) => {
+    setCurrentDate((prevDate) => {
+      const newDate = new Date(prevDate);
+      if (direction === ">") {
+        newDate.setDate(newDate.getDate() + 1);
+      } else if (direction === "<") {
+        newDate.setDate(newDate.getDate() - 1);
+      }
+      return newDate;
+    });
+  }
+
   const undoClick = () => {
-    if (history.length > 0) {
+    if(showComponent==="Setting"){
+      toggleComponent("Setting");
+    }else if (history.length > 0){
       const lastId = history.pop();
       setTodoList((prevList) =>
         prevList.map((item) =>
@@ -69,6 +97,7 @@ const Main = () => {
 
   const toggleComponent = (component) => {
     setShowComponent((prev) => (prev !== component ? component : ""));
+    setCurrentDate(new Date());
   };
 
     const handleDrop = (event) => {
@@ -87,7 +116,19 @@ const Main = () => {
   return (
     <MainPage>
       {showComponent === "Setting"?
-        <h2>ss</h2>
+      <HeaderSection>
+        <button style={{backgroundColor:"#2c2c2c"}}
+              onClick={()=>{ChangeDay("<")}}
+        >
+          <LeftArrow/>
+        </button>
+        <h2>{getKoreanDay()}</h2>
+        <button style={{backgroundColor:"#2c2c2c"}}
+          onClick={()=>{ChangeDay(">")}}
+        >
+          <RightArrow/>
+        </button>
+      </HeaderSection>
       :
         <h2>{longPress.isPress?longPress.name:formatDate}</h2>
       }
@@ -100,7 +141,7 @@ const Main = () => {
       />
       <ButtonSection>
         <Button onClick={undoClick}>
-          <UndoSvg />
+          {showComponent === "Setting"? <CancelSvg2/> : <UndoSvg /> }
         </Button>
         <Button
           className={showComponent === "Setting" ? "trash-button" : ""}
@@ -123,7 +164,7 @@ const Main = () => {
             toggleComponent("Setting");
           }}
         >
-          {showComponent === "Setting" ? <CancelSvg /> : <SettingSvg />}
+          <SettingSvg />
         </SettingButton>
       </ButtonSection>
       {showComponent === "Calendar" ? (

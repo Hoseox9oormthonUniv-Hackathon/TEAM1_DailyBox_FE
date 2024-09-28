@@ -72,8 +72,8 @@ const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress }) 
 
     return (
         <TodoListBox>
-            {todoList.map(({ id, emoji, count, color, name }) => {
-                const EmojiComponent = Icons[emoji];
+            {todoList.map(({ id, emojiType, count, color, name }) => {
+                const EmojiComponent = Icons[emojiType];
                 return (
                     <Icon
                         id={id}
