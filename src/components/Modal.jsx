@@ -210,6 +210,7 @@ function Modal({ openModal, setOpenModal }) {
   const [selectedDay, setSelectedDay] = useState([]);
   const [selectedCount, setSelectedCount] = useState(1);
   const [selectedColor, setselectedColor] = useState("");
+  const [selectedDays, setSelectedDays] = useState([]);
   const [submit, setSubmit] = useState("등록하기");
   const [isCorrect, setIsCorrect] = useState(true);
 
@@ -218,6 +219,7 @@ function Modal({ openModal, setOpenModal }) {
   useEffect(() => {
     // 수정 모드일 때 서버로부터 데이터를 가져옴
     if (openModal.id) {
+      setSubmit("수정하기");
       fetchEmojiData(openModal.id);
     }
   }, [openModal.id]);
@@ -235,9 +237,7 @@ function Modal({ openModal, setOpenModal }) {
       setselectedColor(colorMap[item.color]);
       setSelectedCount(item.goalCount);
       setSelectedName(item.name);
-      setSelectedDay([...item.day]);
-      const koreanDays = item.day.map((day) => daysToEnglish[day]);
-      console.log(koreanDays);
+      setSelectedDays(item.day.map((day) => daysToEnglish[day])); // 영어 요일을 한글로 변환하여 설정
     } catch (error) {
       console.error("데이터를 가져오는 중 오류 발생: ", error);
     }
@@ -255,9 +255,6 @@ function Modal({ openModal, setOpenModal }) {
       setSelectedDays([...selectedDays, day]);
     }
   };
-
-  // 배열에 들어간 요일 string 형식으로 변환.
-  const [selectedDays, setSelectedDays] = useState([]);
 
   useEffect(() => {
     const englishSelectedDays = selectedDays.map((day) => daysToEnglish[day]); // selectedDays를 영어로 변환하여 배열로 유지
@@ -294,12 +291,23 @@ function Modal({ openModal, setOpenModal }) {
       goalCount: selectedCount,
       color: backendColor,
     };
+    console.log(data);
 
     try {
-      const response = await axios.post(
-        "http://15.164.106.252:8080/api/emoji/add",
-        data
-      );
+      let response;
+      if (openModal.id) {
+        // 수정 요청 (PUT)
+        response = await axios.put(
+          `http://15.164.106.252:8080/api/emoji/update/${openModal.id}`,
+          data
+        );
+      } else {
+        // 생성 요청 (POST)
+        response = await axios.post(
+          "http://15.164.106.252:8080/api/emoji/add",
+          data
+        );
+      }
       console.log("서버 응답: ", response.data);
     } catch (error) {
       console.error("요청 오류: ", error);
@@ -314,6 +322,11 @@ function Modal({ openModal, setOpenModal }) {
     setIsCorrect(true);
     setOpenModal({ isOpen: false });
   };
+
+  // 수정 모드일 때만 렌더링을 실행하게 조건부 렌더링 추가
+  if (isEditMode && !selectedName) {
+    return null; // 데이터가 로드될 때까지 렌더링하지 않음
+  }
 
   return (
     <ModalBg onClick={closeModal}>

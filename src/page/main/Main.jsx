@@ -19,18 +19,18 @@ const MainPage = styled.div`
   background-color: #2c2c2c;
   padding: 80px 40px;
   text-align: center;
-  position:relative;
+  position: relative;
 `;
 
 const HeaderSection = styled.header`
-  margin-bottom:16px;
-  display:flex;
+  margin-bottom: 16px;
+  display: flex;
   justify-content: center;
   align-items: center;
   background-color: #2c2c2c;
 
-  h2{
-    margin:0 40px;
+  h2 {
+    margin: 0 40px;
   }
 `;
 
@@ -44,7 +44,7 @@ const Button = styled.button`
   background-color: #393939;
   border-radius: 15px;
   padding: 13px 24px;
-  width:25%;
+  width: 25%;
 `;
 
 const SettingButton = styled(Button)`
@@ -55,8 +55,12 @@ const Main = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [history, setHistory] = useState([]);
   const [showComponent, setShowComponent] = useState("");
-  const [openModal,setOpenModal] = useState({"isOpen":false,"emoji":"",id:""});
-  const [longPress,setLongPress] = useState({"isPress":false,"name":""});
+  const [openModal, setOpenModal] = useState({
+    isOpen: false,
+    emoji: "",
+    id: "",
+  });
+  const [longPress, setLongPress] = useState({ isPress: false, name: "" });
 
   const [todoList, setTodoList] = useState([
     // { id: "1", emojiType: "DOG", count: 3,goalCount:5, color: "#359BF9",name:"1번입니다",day: "MONDAY" },
@@ -64,40 +68,45 @@ const Main = () => {
     // { id: "3", emojiType: "EXERCISE", count: 2,goalCount:5, color: "#C74343",name:"3번입니다",day: "MONDAY" },
     // { id: "4", emojiType: "GIT", count: 4,goalCount:5, color: "#E5E879",name:"4번입니다",day: "MONDAY" },
   ]);
-  useEffect(()=>{
+  useEffect(() => {
     const getTodoList = async () => {
       try {
-        const res = await axios.get('http://15.164.106.252:8080/api/emoji/week-emoji');
-        console.log("호출")
+        const res = await axios.get(
+          "http://15.164.106.252:8080/api/emoji/week-emoji"
+        );
+        console.log("호출");
         setTodoList(res.data.data);
       } catch (err) {
         console.log(err);
       }
-    }
+    };
     getTodoList();
-  },[openModal]);
-  
+  }, [openModal]);
+
   const putUndo = async (id) => {
     try {
-        const res = await axios.put(`http://15.164.106.252:8080/api/emoji/back-count/${id}`);
-        console.log(res.data);
+      const res = await axios.put(
+        `http://15.164.106.252:8080/api/emoji/back-count/${id}`
+      );
+      console.log(res.data);
     } catch (err) {
-        console.log(err);
+      console.log(err);
     }
-  }
+  };
 
   const deleteTodo = async (id) => {
     try {
-        const res = await axios.delete(`http://15.164.106.252:8080/api/emoji/delete/${id}`);
-        console.log(res.data);
-
+      const res = await axios.delete(
+        `http://15.164.106.252:8080/api/emoji/delete/${id}`
+      );
+      console.log(res.data);
     } catch (err) {
-        console.log(err);
+      console.log(err);
     }
-  }
+  };
 
   // console.log(todoList)
-  
+
   const formatDate = new Intl.DateTimeFormat("ko-KR", {
     month: "long",
     day: "numeric",
@@ -105,7 +114,15 @@ const Main = () => {
   }).format(currentDate);
 
   const getKoreanDay = () => {
-    const daysInKorean = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+    const daysInKorean = [
+      "일요일",
+      "월요일",
+      "화요일",
+      "수요일",
+      "목요일",
+      "금요일",
+      "토요일",
+    ];
     return daysInKorean[currentDate.getDay()];
   };
 
@@ -119,13 +136,12 @@ const Main = () => {
       }
       return newDate;
     });
-  }
-
+  };
 
   const undoClick = () => {
-    if(showComponent==="Setting"){
+    if (showComponent === "Setting") {
       toggleComponent("Setting");
-    }else if (history.length > 0){
+    } else if (history.length > 0) {
       const lastId = history.pop();
       setTodoList((prevList) =>
         prevList.map((item) =>
@@ -142,51 +158,57 @@ const Main = () => {
     setCurrentDate(new Date());
   };
 
-    const handleDrop = (event) => {
-      event.preventDefault();
-      const id = Number(event.dataTransfer.getData("text"));
-      if (id && event.currentTarget.classList.contains("trash-button")) {
-        setTodoList((prevList) => prevList.filter((item) => item.id !== id));
-        setLongPress({"isPress":false,name:""});
-        deleteTodo(id);
-      }
-    };
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const id = Number(event.dataTransfer.getData("text"));
+    if (id && event.currentTarget.classList.contains("trash-button")) {
+      setTodoList((prevList) => prevList.filter((item) => item.id !== id));
+      setLongPress({ isPress: false, name: "" });
+      deleteTodo(id);
+    }
+  };
 
-    const handleDropUpdate = (event) => {
-      event.preventDefault();
-      const id = Number(event.dataTransfer.getData("text"));
-      const item = todoList.find((item) => item.id === id);
-      if (id && event.currentTarget.classList.contains("update-button")) {
-        setLongPress({"isPress":false,name:""});
-        setOpenModal({ isOpen: true, emoji:item.emojiType, id:item.id});
-      }
-    };
+  const handleDropUpdate = (event) => {
+    event.preventDefault();
+    const id = Number(event.dataTransfer.getData("text"));
+    const item = todoList.find((item) => item.id === id);
+    if (id && event.currentTarget.classList.contains("update-button")) {
+      setLongPress({ isPress: false, name: "" });
+      setOpenModal({ isOpen: true, emoji: item.emojiType, id: item.id });
+    }
+  };
 
-    const handleDragOver = (event) => {
-      event.preventDefault();
-    };
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
 
   return (
     <MainPage>
       <HeaderSection>
-      {showComponent === "Setting"?
-      <>
-        <button style={{backgroundColor:"#2c2c2c"}}
-              onClick={()=>{ChangeDay("<")}}
-        >
-          <LeftArrow/>
-        </button>
-        <h2>{getKoreanDay()}</h2>
-        <button style={{backgroundColor:"#2c2c2c"}}
-          onClick={()=>{ChangeDay(">")}}
-        >
-          <RightArrow/>
-        </button>
-        </>
-      :
-      <h2>{longPress.isPress?longPress.name:formatDate}</h2>
-    }
-    </HeaderSection>
+        {showComponent === "Setting" ? (
+          <>
+            <button
+              style={{ backgroundColor: "#2c2c2c" }}
+              onClick={() => {
+                ChangeDay("<");
+              }}
+            >
+              <LeftArrow />
+            </button>
+            <h2>{getKoreanDay()}</h2>
+            <button
+              style={{ backgroundColor: "#2c2c2c" }}
+              onClick={() => {
+                ChangeDay(">");
+              }}
+            >
+              <RightArrow />
+            </button>
+          </>
+        ) : (
+          <h2>{longPress.isPress ? longPress.name : formatDate}</h2>
+        )}
+      </HeaderSection>
       <TodoList
         todoList={todoList}
         setTodoList={setTodoList}
@@ -198,12 +220,12 @@ const Main = () => {
       />
       <ButtonSection>
         <Button onClick={undoClick}>
-          {showComponent === "Setting"? <CancelSvg2/> : <UndoSvg /> }
+          {showComponent === "Setting" ? <CancelSvg2 /> : <UndoSvg />}
         </Button>
         <Button
           className={showComponent === "Setting" ? "trash-button" : ""}
-          onDrop={handleDrop} 
-          onDragOver={handleDragOver} 
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
           onClick={() => {
             toggleComponent("Calendar");
           }}
@@ -211,15 +233,15 @@ const Main = () => {
           {showComponent === "Calendar" ? (
             <CancelSvg />
           ) : showComponent === "Setting" ? (
-            <TrashlSvg/>
+            <TrashlSvg />
           ) : (
-            <CalendarSvg/>
+            <CalendarSvg />
           )}
         </Button>
         <SettingButton
-        className="update-button"
-        onDrop={handleDropUpdate} 
-        onDragOver={handleDragOver} 
+          className="update-button"
+          onDrop={handleDropUpdate}
+          onDragOver={handleDragOver}
           onClick={() => {
             toggleComponent("Setting");
           }}
