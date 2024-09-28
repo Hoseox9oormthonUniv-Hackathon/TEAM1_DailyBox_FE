@@ -1,99 +1,129 @@
 import styled from 'styled-components';
 import Icons from '../../asset/icons/icons';
 import { useRef } from 'react';
+import axios from 'axios';
 
 const TodoListBox = styled.div`
-    height: 300px;
-    border: 10px solid #393939;
-    border-radius: 30px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+  height: 300px;
+  border: 10px solid #393939;
+  border-radius: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Icon = styled.div`
-    width: 30%;
-    text-align: center;
-    transition: transform 0.2s ease-in-out;
+  width: 30%;
+  text-align: center;
+  transition: transform 0.2s ease-in-out;
 
-    &:active {
-        transform: scale(0.9);
-    }
+  &:active {
+    transform: scale(0.9);
+  }
 `;
 
 const Count = styled.span`
-    color: ${props => (props.count === 0 ? '#393939' : props.color)};
-    font-weight: 700;
+  color: ${(props) => (props.count === 0 ? '#393939' : props.color)};
+  font-weight: 700;
 `;
 
-const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress }) => {
-    const longPressTimeout = useRef(null);
+const colorMap = {
+  RED: '#C74343',
+  YELLOW: '#E5E879',
+  GREEN: '#35A24D',
+  BLUE: '#359BF9',
+};
 
-    const discountClick = (id) => {
-            const item = todoList.find((item) => item.id === id);
-            if (item.count > 0) {
-                setTodoList((prevList) =>
-                    prevList.map((item) =>
-                        item.id === id && item.count > 0
-                            ? { ...item, count: item.count - 1 }
-                            : item
-                    )
-                );
-                setHistory([...history, id]);
-            }
-    };
+const dayMap = {
+    월요일: "MONDAY",
+    화요일: "TUESDAY",
+    수요일: "WEDNESDAY",
+    목요일: "THURSDAY",
+    금요일: "FRIDAY",
+    토요일: "SATURDAY",
+    일요일: "SUNDAY",
+  };
 
-    const handleLongPress = (name) => {
-        setLongPress({"isPress":true,name})
-    };
+const TodoList = ({ setHistory, history, setTodoList, todoList, setLongPress, currentDay }) => {
+  const longPressTimeout = useRef(null);
 
-    const handleMouseDown = (name) => {
-        longPressTimeout.current = setTimeout(() => handleLongPress(name), 500);
-    };
+  const putDiscount = async (id) => {
+    try {
+        const res = await axios.put(`http://15.164.106.252:8080/api/emoji/down-count/${id}`);
+        console.log(res.data);
+    } catch (err) {
+        console.log(err);
+    }
+  }
 
-    const handleMouseUp = () => {
-        clearTimeout(longPressTimeout.current);
-        setLongPress({"isPress":false,name:""});
-    };
+  const discountClick = (id) => {
+    const item = todoList.find((item) => item.id === id);
+    if (item.count > 0) {
+      setTodoList((prevList) =>
+        prevList.map((item) =>
+          item.id === id && item.count > 0 ? { ...item, count: item.count - 1 } : item
+      )
+      );
+      putDiscount(id);
+      setHistory([...history, id]);
+    }
+  };
 
-    const handleTouchStart = (name) => {
-        longPressTimeout.current = setTimeout(() => handleLongPress(name), 500);
-    };
+  const handleLongPress = (name) => {
+    setLongPress({ isPress: true, name });
+  };
 
-    const handleTouchEnd = () => {
-        clearTimeout(longPressTimeout.current);
-        setLongPress({"isPress":false,name:""});
-    };
+  const handleMouseDown = (name) => {
+    longPressTimeout.current = setTimeout(() => handleLongPress(name), 500);
+  };
 
-    const handleDragStart = (event, id) => {
-        event.dataTransfer.setData("text", id);
-    };
+  const handleMouseUp = () => {
+    clearTimeout(longPressTimeout.current);
+    setLongPress({ isPress: false, name: '' });
+  };
 
-    return (
-        <TodoListBox>
-            {todoList.map(({ id, emojiType, count, color, name }) => {
-                const EmojiComponent = Icons[emojiType];
-                return (
-                    <Icon
-                        id={id}
-                        key={id}
-                        onClick={() => discountClick(id)}
-                        onMouseDown={() => handleMouseDown(name)}
-                        onMouseUp={handleMouseUp}
-                        onMouseLeave={handleMouseUp}
-                        onTouchStart={() => handleTouchStart(name)}
-                        onTouchEnd={handleTouchEnd}
-                        draggable
-                        onDragStart={(event) => handleDragStart(event, id)}
-                    >
-                        {EmojiComponent && <EmojiComponent fill={count === 0 ? '#393939' : color} />}
-                        <Count color={color} count={count}>{count}</Count>
-                    </Icon>
-                );
-            })}
-        </TodoListBox>
-    );
+  const handleTouchStart = (name) => {
+    longPressTimeout.current = setTimeout(() => handleLongPress(name), 500);
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(longPressTimeout.current);
+    setLongPress({ isPress: false, name: '' });
+  };
+
+  const handleDragStart = (event, id) => {
+    event.dataTransfer.setData('text', id);
+  };
+    
+  return (
+    <TodoListBox>
+      {todoList
+        ?.filter((item) => item.day === dayMap[currentDay])
+        .map(({ id, emojiType, count, color, name }) => {
+          const EmojiComponent = Icons[emojiType];
+          return (
+            <Icon
+              id={id}
+              key={id}
+              onClick={() => discountClick(id)}
+              onMouseDown={() => handleMouseDown(name)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={() => handleTouchStart(name)}
+              onTouchEnd={handleTouchEnd}
+              draggable
+              onDragStart={(event) => handleDragStart(event, id)}
+            >
+              {EmojiComponent && <EmojiComponent fill={count === 0 ? '#393939' : colorMap[color]} />}
+              <Count color={colorMap[color]} count={count}>
+                {count}
+              </Count>
+            </Icon>
+          );
+        })}
+    </TodoListBox>
+  );
 };
 
 export default TodoList;

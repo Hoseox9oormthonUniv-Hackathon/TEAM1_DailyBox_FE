@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ReactComponent as UndoSvg } from "../../asset/Undo.svg";
 import { ReactComponent as CalendarSvg } from "../../asset/Calendar.svg";
 import { ReactComponent as SettingSvg } from "../../asset/Setting.svg";
@@ -12,6 +12,7 @@ import TodoList from "./TodoList";
 import TodoSetting from "./TodoSetting";
 import Calendar from "./Calendar";
 import Modal from "../../components/Modal";
+import axios from "axios";
 
 const MainPage = styled.div`
   min-height: 100vh;
@@ -52,12 +53,45 @@ const Main = () => {
   const [longPress,setLongPress] = useState({"isPress":false,"name":""});
 
   const [todoList, setTodoList] = useState([
-    { id: "1", emojiType: "DOG", count: 3,goalCount:5, color: "#359BF9",name:"1번입니다",day: "MONDAY" },
-    { id: "2", emojiType: "EAT", count: 5,goalCount:5, color: "#35A34D",name:"2번입니다",day: "MONDAY" },
-    { id: "3", emojiType: "EXERCISE", count: 2,goalCount:5, color: "#C74343",name:"3번입니다",day: "MONDAY" },
-    { id: "4", emojiType: "GIT", count: 4,goalCount:5, color: "#E5E879",name:"4번입니다",day: "MONDAY" },
+    // { id: "1", emojiType: "DOG", count: 3,goalCount:5, color: "#359BF9",name:"1번입니다",day: "MONDAY" },
+    // { id: "2", emojiType: "EAT", count: 5,goalCount:5, color: "#35A34D",name:"2번입니다",day: "MONDAY" },
+    // { id: "3", emojiType: "EXERCISE", count: 2,goalCount:5, color: "#C74343",name:"3번입니다",day: "MONDAY" },
+    // { id: "4", emojiType: "GIT", count: 4,goalCount:5, color: "#E5E879",name:"4번입니다",day: "MONDAY" },
   ]);
+  useEffect(()=>{
+    const getTodoList = async () => {
+      try {
+        const res = await axios.get('http://15.164.106.252:8080/api/emoji/week-emoji');
+        console.log("호출")
+        setTodoList(res.data.data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    getTodoList();
+  },[openModal]);
+  
+  const putUndo = async (id) => {
+    try {
+        const res = await axios.put(`http://15.164.106.252:8080/api/emoji/back-count/${id}`);
+        console.log(res.data);
+    } catch (err) {
+        console.log(err);
+    }
+  }
 
+  const deleteTodo = async (id) => {
+    try {
+        const res = await axios.delete(`http://15.164.106.252:8080/api/emoji/delete/${id}`);
+        console.log(res.data);
+
+    } catch (err) {
+        console.log(err);
+    }
+  }
+
+  // console.log(todoList)
+  
   const formatDate = new Intl.DateTimeFormat("ko-KR", {
     month: "long",
     day: "numeric",
@@ -81,6 +115,7 @@ const Main = () => {
     });
   }
 
+
   const undoClick = () => {
     if(showComponent==="Setting"){
       toggleComponent("Setting");
@@ -92,6 +127,7 @@ const Main = () => {
         )
       );
       setHistory([...history]);
+      putUndo(lastId);
     }
   };
 
@@ -102,10 +138,11 @@ const Main = () => {
 
     const handleDrop = (event) => {
       event.preventDefault();
-      const id = event.dataTransfer.getData("text");
+      const id = Number(event.dataTransfer.getData("text"));
       if (id && event.currentTarget.classList.contains("trash-button")) {
         setTodoList((prevList) => prevList.filter((item) => item.id !== id));
         setLongPress({"isPress":false,name:""});
+        deleteTodo(id);
       }
     };
   
@@ -138,6 +175,7 @@ const Main = () => {
         history={history}
         setHistory={setHistory}
         setLongPress={setLongPress}
+        currentDay={getKoreanDay()}
       />
       <ButtonSection>
         <Button onClick={undoClick}>
